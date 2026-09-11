@@ -1,0 +1,22 @@
+🎯 Assignment Objective
+
+The objective of this assignment is to help students:
+
+
+•   Understand Sysmon (System Monitor) as a host-based logging and detection tool
+•   Correlate real user activities with Sysmon Event IDs
+•   Develop log analysis, investigation, and reporting skills
+
+Task:
+Each student must perform ANY 5 user-generated activities from the list below or even of his own choice, remembering the events ID which can be recorded by SYSMON. (https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon#events)
+
+The observing student must identify, analyze, and document those activities using Sysmon logs.    
+
+Activities: 
+Process Execution
+File Creation / Modification
+Registry Modification 
+Network Activity 
+Scheduled Task / Persistence 
+USB / External Media Usage
+or any other
