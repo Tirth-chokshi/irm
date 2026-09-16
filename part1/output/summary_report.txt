@@ -1,0 +1,48 @@
+APACHE ACCESS LOG - ANALYSIS SUMMARY
+============================================================
+Log file                 : /home/user/irm/part1/logs/apache_logs
+Total log lines read     : 10000
+Successfully parsed      : 10000
+Unparsed / malformed     : 0
+Total IP addresses       : 10000
+Unique IP addresses      : 1753
+Total URL requests       : 10000
+Unique URLs visited      : 1498
+Total bytes transferred  : 2747282740 bytes (2620.01 MB)
+
+TOP 10 IP ADDRESSES (by number of requests)
+------------------------------------------------------------
+    482  66.249.73.135
+    364  46.105.14.53
+    357  130.237.218.86
+    273  75.97.9.59
+    113  50.16.19.13
+    102  209.85.238.199
+     99  68.180.224.225
+     84  100.43.83.137
+     83  208.115.111.72
+     82  198.46.149.143
+
+TOP 10 REQUESTED URLS
+------------------------------------------------------------
+    807  /favicon.ico
+    546  /style2.css
+    538  /reset.css
+    533  /images/jordan-80.png
+    516  /images/web/2009/banner.png
+    488  /blog/tags/puppet?flav=rss20
+    224  /projects/xdotool/
+    217  /?flav=rss20
+    197  /
+    180  /robots.txt
+
+HTTP STATUS CODE DISTRIBUTION
+------------------------------------------------------------
+   9126  HTTP 200
+     45  HTTP 206
+    164  HTTP 301
+    445  HTTP 304
+      2  HTTP 403
+    213  HTTP 404
+      2  HTTP 416
+      3  HTTP 500
