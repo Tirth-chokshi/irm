@@ -169,7 +169,27 @@ def load_events(path):
         data = None
 
     if data is None:
-        # Fall back to JSON-lines: one JSON object per line
+        # Fall back 1: concatenated JSON objects - }{ back to back, often
+        # pretty-printed over many lines. raw_decode reads one object at a
+        # time and reports where it stopped, so we walk the whole file.
+        decoder = json.JSONDecoder()
+        events = []
+        position = 0
+        length = len(text)
+        while position < length:
+            while position < length and text[position] in " \t\r\n":
+                position += 1
+            if position >= length:
+                break
+            try:
+                obj, position = decoder.raw_decode(text, position)
+            except ValueError:
+                break
+            events.append(obj)
+        if events:
+            return unwrap(events)
+
+        # Fall back 2: JSON-lines - one complete JSON object per line
         events = []
         for line in text.splitlines():
             line = line.strip().rstrip(",")
@@ -179,17 +199,28 @@ def load_events(path):
                 events.append(json.loads(line))
             except ValueError:
                 continue
-        return events
+        return unwrap(events)
 
     if isinstance(data, list):
-        return data
+        return unwrap(data)
     if isinstance(data, dict):
         # A wrapper object such as {"events": [...]} or {"Events": {...}}
         for key in ("events", "Events", "records", "Records", "data", "value"):
             if key in data and isinstance(data[key], list):
-                return data[key]
-        return [data]
+                return unwrap(data[key])
+        return unwrap([data])
     return []
+
+
+def unwrap(events):
+    """Strip the {"Event": {...}} envelope that Event-XML-to-JSON exports add."""
+    result = []
+    for event in events:
+        while (isinstance(event, dict) and len(event) == 1 and
+               list(event.keys())[0] in ("Event", "event", "Events")):
+            event = list(event.values())[0]
+        result.append(event)
+    return result
 
 
 def flatten(value, prefix, out):
