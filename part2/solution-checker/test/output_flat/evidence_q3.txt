@@ -1,0 +1,9 @@
+Q3. What is the identifier of the environment variable the attacker set?
+========================================================================
+Method: Event ID 1 (setx / $env: / SetEnvironmentVariable) + Event ID 12/13 (\Environment\)
+Answer: Environment variable: KDMTMP
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+env-var command -> [EID 1 Process creation] | 2023-08-14 09:12:55.300 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | CommandLine=powershell.exe -c [Environment]::SetEnvironmentVariable('KDMTMP','C:\Users\jdoe\AppData\Local\Temp','User')
+registry env write -> [EID 13 Registry value set] | 2023-08-14 09:12:55.400 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | Details=C:\Users\jdoe\AppData\Local\Temp

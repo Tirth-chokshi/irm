@@ -1,0 +1,12 @@
+Q5. Several identical commands ran at once - what was the first?
+========================================================================
+Method: Event ID 1 grouped by CommandLine, earliest UtcTime wins
+Answer: First of the repeated commands: cmd.exe /c whoami /all
+            executed at 2023-08-14 09:13:12.001
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+x3  cmd.exe /c whoami /all
+    first=2023-08-14 09:13:12.001  last=2023-08-14 09:13:12.004
+x2  cmd.exe /c systeminfo
+    first=2023-08-14 09:13:13.100  last=2023-08-14 09:13:13.101

@@ -1,0 +1,10 @@
+SYSMON EVENT ID SUMMARY
+============================================================
+Total events: 22
+
+     10  EID 1    Process creation
+      4  EID 3    Network connection
+      4  EID 7    Image (DLL) loaded
+      2  EID 11   FileCreate
+      1  EID 13   Registry value set
+      1  EID 22   DNS query

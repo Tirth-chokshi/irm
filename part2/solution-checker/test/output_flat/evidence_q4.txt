@@ -1,0 +1,9 @@
+Q4. Which process is the LOLBIN used to run malicious commands?
+========================================================================
+Method: Event ID 1 (Image matches a known LOLBIN)
+Answer: LOLBIN: mshta.exe
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+LOLBIN execution -> [EID 1 Process creation] | 2023-08-14 09:13:10.000 | Image=C:\Windows\System32\mshta.exe | CommandLine=mshta.exe C:\Users\jdoe\AppData\Local\Temp\stage1.hta
+    ParentImage=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe

