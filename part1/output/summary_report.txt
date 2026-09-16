@@ -1,11 +1,12 @@
 APACHE ACCESS LOG - ANALYSIS SUMMARY
 ============================================================
-Log file                 : /home/user/irm/part1/logs/apache_logs
+Log file                 : logs/apache_logs
 Total log lines read     : 10000
 Successfully parsed      : 10000
 Unparsed / malformed     : 0
 Total IP addresses       : 10000
 Unique IP addresses      : 1753
+Non-IPv4 hosts in log    : 0
 Total URL requests       : 10000
 Unique URLs visited      : 1498
 Total bytes transferred  : 2747282740 bytes (2620.01 MB)
