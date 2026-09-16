@@ -101,76 +101,78 @@ here, not a necessity.
 
 ---
 
-## Step 2 — Replay into the Windows Event Log (Route A)  ☐ not yet done
+## Step 2 — Convert the file, then replay it into Event Viewer  ☐ not yet done
 
-Needs a Windows machine and an **Administrator** PowerShell window.
+### Correction to an earlier plan
 
-### 2a. Turn the concatenated objects into one array PowerShell can parse
+An earlier draft of this step split the file with the PowerShell regex
+`$raw -replace "(?m)^\}", "},"` to turn the concatenated objects into an array.
+**That does not work on this file** and was removed. Inspecting the real file
+showed it is two exports concatenated with *different indentation*:
 
-Every top-level closing brace sits at column 0, while nested ones are indented,
-so a comma can be appended to exactly those and the whole thing wrapped in `[ ]`.
+* 1000 events are indented two spaces and close with `}` at column 0
+* 484 events are indented four spaces and close indented, with no delimiter at column 0
 
-```powershell
-$raw    = Get-Content .\sysmon-events.json -Raw
-$joined = ($raw -replace "(?m)^\}", "},").Trim().TrimEnd(',')
-$events = ConvertFrom-Json ("[" + $joined + "]")
-$events.Count          # expect 1484
+So no line-anchored pattern finds all 1484 boundaries. The file also uses CRLF
+line endings, which breaks `$`-anchored patterns as well. The reliable method
+is to decode one object at a time and let the decoder report where it stopped —
+which is what `tools/convert_sysmon_json.py` does.
+
+### 2a. Convert the JSON into usable formats
+
+Runs anywhere Python 3 is installed — Windows, Linux or Mac.
+
+```bash
+python3 tools/convert_sysmon_json.py part1/logs/sysmon-events.json part2/logs
 ```
 
-### 2b. Create the destination log (run once)
+Produces two files in `part2/logs/`, both already committed to this repo so
+this step can be skipped if you just want the output:
+
+| File | What it is | Use it for |
+|---|---|---|
+| `sysmon-events.ndjson` | one compact event per line, `{"Event":…}` envelope stripped | feeding the PowerShell import below; also `jq`-friendly |
+| `sysmon-events.csv` | 1484 rows x 62 columns, investigation fields ordered first | **Timeline Explorer or Excel — sort and filter every field** |
+
+Verified: all 1484 NDJSON lines parse independently, and the content is
+identical to the original objects (round-trip compared, no data lost).
+
+### 2b. Replay into the Windows Event Log
+
+On Windows, in an **Administrator** PowerShell window:
 
 ```powershell
-New-EventLog   -LogName "Sysmon-Replay" -Source "SysmonReplay"
-Limit-EventLog -LogName "Sysmon-Replay" -MaximumSize 64MB -OverflowAction OverwriteAsNeeded
+.\Import-SysmonToEventViewer.ps1 -Path .\sysmon-events.ndjson
 ```
 
-### 2c. Write the events
+Add `-ExportEvtx C:\Temp\sysmon.evtx` to also write out a genuine `.evtx`
+file at the end.
 
-The original timestamp is preserved in the message body, because
-`Write-EventLog` stamps each entry with the time it was written, not the time
-it originally occurred.
+The script checks for elevation, creates the log, reads the NDJSON line by
+line, and writes each event with its original timestamp on the first line of
+the message body.
 
-```powershell
-$n = 0
-foreach ($e in $events) {
-    $ev   = $e.Event
-    $id   = [int]$ev.System.EventID
-    $time = $ev.System.TimeCreated.'#attributes'.SystemTime
-    $rec  = $ev.System.EventRecordID
-    $body = "OriginalTime : $time`r`nEventRecordID: $rec`r`nEventID      : $id`r`n`r`n" +
-            ($ev.EventData | ConvertTo-Json -Depth 10)
-    if ($body.Length -gt 31000) { $body = $body.Substring(0, 31000) }
-    Write-EventLog -LogName "Sysmon-Replay" -Source "SysmonReplay" `
-                   -EventId $id -EntryType Information -Message $body
-    $n++
-}
-"wrote $n events"
-```
+### 2c. Open it
 
-### 2d. Open it
+Event Viewer → **Applications and Services Logs** → **Sysmon-Replay**
 
-Event Viewer → **Applications and Services Logs** → **Sysmon-Replay**.
-
-### 2e. Export a genuine .evtx (optional)
-
-```powershell
-wevtutil epl Sysmon-Replay C:\Temp\sysmon-replay.evtx
-```
-
-### Undo, if needed
+### Undo
 
 ```powershell
 Remove-EventLog -LogName "Sysmon-Replay"
 ```
 
-### Limitations to know before relying on this
+### Limitations — read before drawing conclusions
 
 | Limitation | Effect |
 |---|---|
-| Fields live in the Message body as text, not in the structured EventData table | **Filter Current Log → by Event ID works.** Filtering by field via XPath (`*[EventData[Data[@Name='Image']]]`) **does not**. Ctrl+F text search does work. |
-| `Write-EventLog` stamps entries with the current time | The Event Viewer time column is useless for ordering. Use `OriginalTime` in the body — this matters for the question about which of several identical commands ran first |
-| Event ID must be 0-65535, message capped near 32 KB | Not a problem here: Sysmon uses IDs 1-26 and these events are small |
-| Entries are written in file order | Sequence is preserved even though timestamps are not |
+| Fields land in the message **body as text**, not the structured EventData table | Filter Current Log → by Event ID works, and Ctrl+F text search works. XPath field filters (`*[EventData[Data[@Name='Image']]]`) do **not**. |
+| `Write-EventLog` stamps entries with the time they were **written** | Event Viewer's time column is meaningless for ordering. Use `OriginalTime` on the first line of each message. Entries are written in file order, so sequence is preserved. |
+| Message capped near 32 KB, Event ID must be 0-65535 | Not a problem here — Sysmon uses IDs 1-26 and these events are small. |
+
+**Because of limitation 2, the CSV is the better tool for anything involving
+ordering or per-field filtering.** Event Viewer is useful for getting a feel
+for the data and for screenshots; the CSV is where the actual work happens.
 
 ### Findings
 
