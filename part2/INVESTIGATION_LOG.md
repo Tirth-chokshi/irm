@@ -184,4 +184,87 @@ Notes :
 
 ---
 
-## Step 3 — (to be added once Step 2 is recorded)
+## Step 3 — Triage and find an anchor  ☐ not yet done
+
+Do **not** start from question 1. You cannot answer "which file granted
+access" until you know what the attacker did, and you learn that by finding
+one certainly-bad event first and following it outward.
+
+### The principle
+
+An investigation starts at the **smallest high-signal event set**, not the
+biggest one. In this log:
+
+| Event ID | Count | Signal quality |
+|---|---|---|
+| 11 FileCreate | 815 | Huge and mostly noise — every temp file Windows touches |
+| 1 Process creation | 428 | The backbone, but most of it is normal Windows activity |
+| 3 Network connection | 200 | Good, once web traffic is set aside |
+| **22 DNS query** | **32** | **Best starting point — smallest set, and a domain either belongs to Microsoft or it does not** |
+
+So work 22 → 3 → 1, narrowing as you go.
+
+### 3a. Look at every DNS query (32 events)
+
+In Event Viewer: select **Sysmon-Replay** → right panel → **Filter Current
+Log…** → in **"Includes/Excludes Event IDs"** type `22` → OK.
+
+Read the `QueryName` in each message body. Sort them into two piles:
+
+* **Expected** — anything ending in `microsoft.com`, `windows.com`,
+  `msftncsi.com`, `live.com`, `bing.com`, `msedge.net`, `windowsupdate.com`.
+  MSEDGEWIN10 is a stock Microsoft test VM and chatters constantly.
+* **Not expected** — everything else. A domain that is not Microsoft, on a
+  test VM that does nothing but run the attack, is your anchor.
+
+Also note which `Image` made each query. A browser resolving a random domain
+is ordinary; a process in `\Temp\` or `\Downloads\` resolving one is not.
+
+### 3b. Look at the outbound connections (200 events)
+
+Change the filter to Event ID `3`. You are looking for `DestinationPort`
+values that are **not** 80, 443 or 53. There will not be many. Write down
+every one, with the `Image` that opened it.
+
+Two different non-web ports usually means two different purposes — worth
+noticing now, it matters later.
+
+### 3c. Name your anchor
+
+By the end of 3a and 3b you should be able to finish this sentence with
+specifics:
+
+> "Process `____________` connected to `____________` on port `______` at
+> `____________`, and that is not something this machine should be doing."
+
+That sentence is your anchor. Everything in Step 4 hangs off it.
+
+### Using Event Viewer effectively here
+
+* **Filter Current Log → Event IDs** is the only structured filter that works
+  on this replayed log. Use it constantly.
+* **Ctrl+F** searches message text — use it to find a string across events.
+* The **Date and Time** column is import time, not real time. Read
+  `OriginalTime` on the first line of each message body instead.
+* Events are listed in file order, so the list sequence is the true sequence.
+* To read many events quickly, widen the bottom preview pane, then walk the
+  list with the arrow keys instead of double-clicking each one.
+
+**If clicking through 200 events gets tedious, switch to
+`logs/sysmon-events.csv`.** Sort by `EventID`, filter the `DestinationPort`
+column, and 3b takes about thirty seconds. That is not cheating — it is what
+the tooling is for.
+
+### Findings
+
+```
+Unexpected domains (Event ID 22):
+
+Non-web ports and the process that opened each (Event ID 3):
+
+My anchor sentence:
+```
+
+---
+
+## Step 4 — (to be added once Step 3 is recorded)
