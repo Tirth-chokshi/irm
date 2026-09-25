@@ -11,6 +11,7 @@
   --proc:#2a78d6; --net:#eb6834; --dns:#1baf7a; --other:#8b94a3;
   --flag:#b45309; --flag-bg:#fef3c7;
   --focus:#2a78d6;
+  --shadow:0 -8px 28px rgba(16,22,32,.16);
   --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
@@ -23,6 +24,7 @@
     --proc:#3987e5; --net:#d95926; --dns:#199e70; --other:#6b7686;
     --flag:#fbbf24; --flag-bg:#3a2e12;
     --focus:#3987e5;
+    --shadow:0 -8px 28px rgba(0,0,0,.5);
   }
 }
 :root[data-theme="dark"]{
@@ -33,6 +35,7 @@
   --proc:#3987e5; --net:#d95926; --dns:#199e70; --other:#6b7686;
   --flag:#fbbf24; --flag-bg:#3a2e12;
   --focus:#3987e5;
+  --shadow:0 -8px 28px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -40,139 +43,130 @@ body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:var(--sans); font-size:14px; line-height:1.45;
   display:flex; flex-direction:column; overflow:hidden;
+  -webkit-text-size-adjust:100%;
 }
-button,input,textarea,select{font:inherit;color:inherit}
+button,input,textarea,select{font:inherit; color:inherit}
 :focus-visible{outline:2px solid var(--focus); outline-offset:1px}
 .mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto; display:inline-block}
 
-/* ---------- header ---------- */
-header{
-  background:var(--surface); border-bottom:1px solid var(--line);
-  padding:10px 16px 0; flex:0 0 auto;
-}
+/* ========== header ========== */
+header{background:var(--surface); padding:10px 16px 6px; flex:0 0 auto}
 .titlerow{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:8px}
-h1{font-size:15px; font-weight:600; margin:0; letter-spacing:-.01em}
+h1{font-size:15px; font-weight:600; margin:0; letter-spacing:-.01em; white-space:nowrap}
 .scope{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); display:flex; gap:14px; flex-wrap:wrap}
 .scope b{color:var(--ink); font-weight:600}
 .spacer{flex:1 1 auto}
-.ghost{
-  background:transparent; border:1px solid var(--line-strong); color:var(--ink-2);
-  border-radius:5px; padding:3px 9px; font-size:11.5px; cursor:pointer;
-}
+.ghost{background:transparent; border:1px solid var(--line-strong); color:var(--ink-2);
+  border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer}
 .ghost:hover{background:var(--surface-2); color:var(--ink)}
 
-/* ---------- timeline ---------- */
+/* ========== timeline ========== */
 .tl-wrap{padding-bottom:9px}
-.tl-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px}
+.tl-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:3px}
 .tl-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); font-weight:600}
-.tl-peak{font-family:var(--mono); font-size:10.5px; color:var(--ink-3)}
-.tl{
-  display:flex; align-items:flex-end; gap:1px; height:46px;
-  background:var(--surface-2); border-radius:3px; padding:2px; cursor:crosshair;
-}
+.tl-peak{font-family:var(--mono); font-size:10.5px; color:var(--ink-3); text-align:right}
+.tl{display:flex; align-items:flex-end; gap:1px; height:46px;
+  background:var(--surface-2); border-radius:4px; padding:2px; cursor:crosshair; touch-action:manipulation}
 .tl-bin{flex:1 1 0; min-width:0; display:flex; flex-direction:column; justify-content:flex-end;
-  height:100%; position:relative; appearance:none; -webkit-appearance:none;
-  background:none; border:0; padding:0; margin:0; cursor:pointer; border-radius:2px}
+  height:100%; appearance:none; -webkit-appearance:none; background:none; border:0;
+  padding:0; margin:0; cursor:pointer; border-radius:2px}
 .tl-bin:hover{background:var(--surface-3)}
-.tl-bin span{display:block; width:100%; flex:0 0 auto; min-height:1.5px; border-radius:1px}
 .tl-bin.sel{background:var(--surface-3); box-shadow:inset 0 0 0 1px var(--line-strong)}
+.tl-bin span{display:block; width:100%; flex:0 0 auto; min-height:1.5px; border-radius:1px}
 .tl-axis{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--ink-3); margin-top:2px}
+.winbar{display:none; align-items:center; gap:8px; font-family:var(--mono); font-size:11px;
+  color:var(--ink-2); margin-top:5px}
+.winbar.on{display:flex}
 
-/* ---------- tabs ---------- */
-nav{display:flex; gap:2px; margin-top:2px}
-nav button{
-  background:transparent; border:0; border-bottom:2px solid transparent;
-  padding:7px 12px; font-size:13px; color:var(--ink-2); cursor:pointer; font-weight:500;
-}
+/* ========== tabs ========== */
+nav{display:flex; gap:2px; padding:0 16px; background:var(--surface);
+  border-bottom:1px solid var(--line); flex:0 0 auto}
+nav button{background:transparent; border:0; border-bottom:2px solid transparent;
+  padding:9px 12px; font-size:13px; color:var(--ink-2); cursor:pointer; font-weight:500; min-height:40px}
 nav button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--ink); font-weight:600}
 
-/* ---------- filter bar ---------- */
-.filters{
-  background:var(--surface); border-bottom:1px solid var(--line);
-  padding:9px 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; flex:0 0 auto;
-}
-.search{
-  flex:1 1 260px; min-width:0; background:var(--surface-2); border:1px solid var(--line);
-  border-radius:6px; padding:6px 10px; font-family:var(--mono); font-size:12.5px;
-}
+/* ========== filters ========== */
+.filters{background:var(--surface); border-bottom:1px solid var(--line);
+  padding:9px 16px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; flex:0 0 auto}
+.search{flex:1 1 260px; min-width:0; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:7px; padding:8px 11px; font-family:var(--mono); font-size:13px}
 .search::placeholder{color:var(--ink-3); font-family:var(--sans)}
-.chips{display:flex; gap:5px; flex-wrap:wrap}
-.chip{
-  display:inline-flex; align-items:center; gap:6px; background:var(--surface-2);
-  border:1px solid var(--line); border-radius:20px; padding:3px 10px 3px 7px;
-  font-size:12px; cursor:pointer; color:var(--ink-2); white-space:nowrap;
-}
+.chips{display:flex; gap:6px; flex-wrap:wrap; min-width:0}
+.chip{display:inline-flex; align-items:center; gap:6px; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:20px; padding:5px 11px 5px 8px;
+  font-size:12.5px; cursor:pointer; color:var(--ink-2); white-space:nowrap; min-height:32px}
 .chip:hover{border-color:var(--line-strong)}
 .chip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--surface)}
 .chip[aria-pressed="true"] .n{color:var(--surface); opacity:.75}
-.dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
 .chip .n{font-family:var(--mono); font-size:11px; color:var(--ink-3)}
-.toggle{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2); cursor:pointer; white-space:nowrap}
-.count{font-family:var(--mono); font-size:12px; color:var(--ink-2); white-space:nowrap}
+.toggle{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-2);
+  cursor:pointer; white-space:nowrap; min-height:32px}
+.toggle input{width:16px; height:16px; accent-color:var(--focus)}
+.count{font-family:var(--mono); font-size:12.5px; color:var(--ink-2); white-space:nowrap}
 .count b{color:var(--ink)}
 
-/* ---------- panes ---------- */
-main{flex:1 1 auto; min-height:0; display:flex; overflow:hidden}
+/* ========== panes ========== */
+main{flex:1 1 auto; min-height:0; display:flex; overflow:hidden; position:relative}
 .pane{display:none; flex:1 1 auto; min-height:0; min-width:0}
 .pane.on{display:flex}
 
-/* events pane: table + detail */
+/* ---- events: list + detail ---- */
 #events-pane{flex-direction:row}
-.tablewrap{flex:1 1 60%; min-width:0; overflow:auto; background:var(--surface)}
-table{border-collapse:collapse; width:100%; font-size:12.5px}
-thead th{
-  position:sticky; top:0; z-index:2; background:var(--surface-2); text-align:left;
-  padding:6px 10px; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
-  color:var(--ink-3); font-weight:600; border-bottom:1px solid var(--line); white-space:nowrap;
-}
-tbody tr{border-bottom:1px solid var(--line); cursor:pointer}
-tbody tr:hover{background:var(--surface-2)}
-tbody tr.sel{background:var(--surface-3)}
-tbody tr.flagged td:first-child{box-shadow:inset 3px 0 0 var(--flag)}
-td{padding:5px 10px; vertical-align:top}
-td.t{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink-2); white-space:nowrap; font-size:11.5px}
-td.e{white-space:nowrap}
-td.p{font-family:var(--mono); font-size:11.5px; color:var(--ink); white-space:nowrap; max-width:170px; overflow:hidden; text-overflow:ellipsis}
-td.s{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); word-break:break-all}
-.eid{
-  display:inline-flex; align-items:center; gap:5px; font-family:var(--mono);
-  font-size:11px; font-weight:600; color:var(--ink-2);
-}
+.listwrap{flex:1 1 60%; min-width:0; overflow:auto; background:var(--surface); -webkit-overflow-scrolling:touch}
+.lhead, .row{display:grid; grid-template-columns:110px 104px 168px minmax(0,1fr); gap:10px; align-items:start}
+.lhead{position:sticky; top:0; z-index:2; background:var(--surface-2); padding:7px 14px;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3);
+  font-weight:600; border-bottom:1px solid var(--line)}
+.row{padding:8px 14px; border-bottom:1px solid var(--line); cursor:pointer;
+  text-align:left; width:100%; background:none; border-left:0; border-right:0; border-top:0;
+  appearance:none; -webkit-appearance:none; font:inherit; color:inherit}
+.row:hover{background:var(--surface-2)}
+.row.sel{background:var(--surface-3)}
+.row.flagged{box-shadow:inset 3px 0 0 var(--flag)}
+.c-t{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink-2);
+  white-space:nowrap; font-size:11.5px}
+.c-e{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px;
+  font-weight:600; color:var(--ink-2); white-space:nowrap}
+.c-p{font-family:var(--mono); font-size:11.5px; color:var(--ink); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis}
+.c-s{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); word-break:break-all;
+  overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical}
 mark{background:var(--flag-bg); color:var(--ink); padding:0 1px; border-radius:2px}
 .more{padding:14px; text-align:center}
 .empty{padding:40px 16px; text-align:center; color:var(--ink-3)}
 
-/* detail */
-aside{
-  flex:0 0 400px; border-left:1px solid var(--line); background:var(--surface);
-  overflow:auto; padding:14px 16px;
-}
+/* ---- detail ---- */
+aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surface);
+  overflow:auto; -webkit-overflow-scrolling:touch; display:flex; flex-direction:column}
+.sheetbar{display:none}
+#detail-body{padding:14px 16px}
 .dhead{display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap}
 .dtitle{font-size:13px; font-weight:600}
-.dtime{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); margin-bottom:12px}
-.acts{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px}
-.act{
-  background:var(--surface-2); border:1px solid var(--line); border-radius:5px;
-  padding:5px 10px; font-size:12px; cursor:pointer; color:var(--ink);
-}
+.dtime{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); margin-bottom:12px; word-break:break-all}
+.acts{display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px}
+.act{background:var(--surface-2); border:1px solid var(--line); border-radius:7px;
+  padding:8px 12px; font-size:12.5px; cursor:pointer; color:var(--ink); min-height:38px}
 .act:hover{background:var(--surface-3)}
 .act.on{background:var(--ink); color:var(--surface); border-color:var(--ink)}
-.field{border-top:1px solid var(--line); padding:7px 0; display:grid; grid-template-columns:118px 1fr; gap:10px}
-.fk{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); font-weight:600; padding-top:1px}
-.fv{font-family:var(--mono); font-size:11.5px; word-break:break-all; color:var(--ink)}
-.pivot{
-  background:none; border:0; padding:0; text-align:left; font-family:var(--mono);
+.field{border-top:1px solid var(--line); padding:8px 0; display:grid;
+  grid-template-columns:116px minmax(0,1fr); gap:10px}
+.fk{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3);
+  font-weight:600; padding-top:2px}
+.fv{font-family:var(--mono); font-size:11.5px; word-break:break-all; color:var(--ink); min-width:0}
+.pivot{background:none; border:0; padding:0; text-align:left; font-family:var(--mono);
   font-size:11.5px; color:var(--proc); cursor:pointer; text-decoration:underline;
-  text-decoration-style:dotted; text-underline-offset:2px; word-break:break-all;
-}
+  text-decoration-style:dotted; text-underline-offset:2px; word-break:break-all; min-width:0}
 .pivot:hover{text-decoration-style:solid}
-.hint{color:var(--ink-3); font-size:12px; line-height:1.55}
+.hint{color:var(--ink-3); font-size:12.5px; line-height:1.6}
+.hint strong{color:var(--ink-2)}
+.kbd{font-family:var(--mono); font-size:11px; border:1px solid var(--line-strong);
+  border-radius:3px; padding:0 4px}
 
-/* tree */
-#tree-pane{overflow:auto; background:var(--surface); padding:14px 16px}
+/* ---- tree ---- */
+#tree-pane{overflow:auto; -webkit-overflow-scrolling:touch; background:var(--surface); padding:14px 16px}
 #tree-pane.on{display:block}
-.tnode{border-left:1px solid var(--line); margin-left:7px; padding-left:12px}
-.trow{display:flex; gap:7px; align-items:baseline; padding:3px 0; cursor:pointer; border-radius:4px}
+.trow{display:flex; gap:8px; align-items:baseline; padding:6px 0; cursor:pointer; border-radius:4px}
 .trow:hover{background:var(--surface-2)}
 .tname{font-family:var(--mono); font-size:12px; font-weight:600; white-space:nowrap}
 .tcmd{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); word-break:break-all; min-width:0}
@@ -180,40 +174,117 @@ aside{
 .tw{font-family:var(--mono); font-size:11px; color:var(--ink-3); white-space:nowrap}
 .troot{margin-bottom:18px}
 
-/* notes */
-#notes-pane{overflow:auto; background:var(--surface); padding:16px}
+/* ---- notes ---- */
+#notes-pane{overflow:auto; -webkit-overflow-scrolling:touch; background:var(--surface); padding:16px}
 #notes-pane.on{display:block}
 .notes-inner{max-width:68ch; margin:0 auto; display:flex; flex-direction:column; gap:14px}
-.q{border:1px solid var(--line); border-radius:7px; padding:11px 13px; background:var(--surface-2)}
+.q{border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:var(--surface-2)}
 .qh{display:flex; gap:8px; align-items:baseline; margin-bottom:3px}
-.qn{font-family:var(--mono); font-size:11px; font-weight:600; color:var(--surface); background:var(--ink); border-radius:3px; padding:1px 5px; flex:0 0 auto}
+.qn{font-family:var(--mono); font-size:11px; font-weight:600; color:var(--surface);
+  background:var(--ink); border-radius:3px; padding:1px 5px; flex:0 0 auto}
 .qt{font-size:13px; font-weight:600}
-.qm{font-size:11.5px; color:var(--ink-3); margin:0 0 7px 0}
-.q textarea{
-  width:100%; min-height:52px; resize:vertical; background:var(--surface);
-  border:1px solid var(--line); border-radius:5px; padding:7px 9px;
-  font-family:var(--mono); font-size:12px;
-}
+.qm{font-size:11.5px; color:var(--ink-3); margin:0 0 8px 0}
+.q textarea{width:100%; min-height:56px; resize:vertical; background:var(--surface);
+  border:1px solid var(--line); border-radius:6px; padding:8px 10px;
+  font-family:var(--mono); font-size:13px}
 .saved{font-size:11.5px; color:var(--ink-3); text-align:center; min-height:16px}
 
-@media (max-width:860px){
-  #events-pane{flex-direction:column}
-  aside{flex:0 0 auto; max-height:46%; border-left:0; border-top:1px solid var(--line)}
-  td.p{max-width:100px}
-  .scope{gap:10px}
+/* ================= MOBILE ================= */
+@media (max-width:760px){
+  /* The whole page scrolls instead of a fixed app shell, so the header and
+     filters move out of the way and the event list gets the full screen.
+     Only the tab bar stays pinned. */
+  html,body{height:auto; min-height:100%}
+  body{display:block; overflow:visible; font-size:15px}
+  main{display:block; overflow:visible}
+  .pane{display:none}
+  .pane.on{display:block}
+  .listwrap{overflow:visible}
+  #tree-pane, #notes-pane{overflow:visible}
+  body.locked{overflow:hidden; position:fixed; width:100%}
+
+  header{padding:8px 16px 0}
+  h1{font-size:14px}
+  .titlerow{gap:8px; margin-bottom:7px}
+  .scope{font-size:11px; gap:9px; width:100%; order:3}
+
+  .tl{height:44px}
+  .tl-head{flex-wrap:wrap}
+  .tl-wrap{padding-bottom:7px}
+
+  nav{position:sticky; top:env(safe-area-inset-top, 0px); z-index:30;
+    padding:0 8px; border-top:1px solid var(--line);
+    box-shadow:0 1px 0 var(--line)}
+  nav button{flex:1 1 0; min-height:46px; padding:10px 6px; font-size:13px; text-align:center}
+
+  .filters{padding:8px 0 8px 16px; gap:8px}
+  /* 16px stops iOS zooming the page when a field takes focus */
+  .search{flex:1 1 100%; margin-right:16px; font-size:16px; padding:10px 12px}
+  .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;
+    -webkit-overflow-scrolling:touch; padding-right:16px; width:100%}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{min-height:36px; font-size:13px; padding:6px 13px 6px 9px}
+  .filterrow2{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding-right:16px; width:100%}
+  .toggle{min-height:36px; font-size:13px}
+
+  .lhead{display:none}
+  .row{grid-template-columns:auto minmax(0,1fr);
+    grid-template-areas:"t e" "p p" "s s";
+    gap:3px 10px; padding:11px 16px; min-height:44px}
+  .c-t{grid-area:t; font-size:12px}
+  .c-e{grid-area:e; justify-self:start; font-size:11.5px}
+  .c-p{grid-area:p; font-size:12.5px; white-space:normal; word-break:break-all}
+  .c-s{grid-area:s; font-size:12px; -webkit-line-clamp:4; color:var(--ink-3)}
+
+  /* detail becomes a full-screen sheet */
+  aside{position:fixed; inset:0; z-index:60; flex:1 1 auto; border-left:0;
+    box-shadow:var(--shadow); transform:translateY(101%);
+    transition:transform .22s ease; visibility:hidden;
+    padding-top:env(safe-area-inset-top, 0px)}
+  aside.open{transform:none; visibility:visible}
+  .sheetbar{display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--surface); border-bottom:1px solid var(--line);
+    padding:10px 16px; flex:0 0 auto}
+  .sheetbar span{font-size:12px; color:var(--ink-3); font-family:var(--mono);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .sheetbar .ghost{min-height:38px; padding:8px 14px}
+  #detail-body{padding:14px 16px calc(28px + env(safe-area-inset-bottom, 0px));
+    overflow:auto; -webkit-overflow-scrolling:touch; flex:1 1 auto}
+  .field{grid-template-columns:1fr; gap:2px; padding:9px 0}
+  .fv,.pivot{font-size:12.5px}
+  .act{min-height:42px; font-size:13px; flex:1 1 auto}
+
+  #tree-pane{padding:12px 16px}
+  .trow{padding:7px 0; flex-wrap:wrap; gap:4px 8px}
+  .tcmd{flex:1 1 100%; font-size:11.5px}
+
+  #notes-pane{padding:16px}
+  .q textarea{font-size:16px}
+  .qt{font-size:14px}
+  .hint{font-size:13px}
+}
+
+@media (max-width:380px){
+  .scope span:nth-child(3){display:none}
+  .row{padding:10px 14px}
+  .filters{padding-left:14px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  aside{transition:none}
 }
 </style>
 
 <header>
   <div class="titlerow">
     <h1>Sysmon Case Workbench</h1>
+    <div class="spacer"></div>
+    <button class="ghost" id="theme">Theme</button>
     <div class="scope mono">
       <span>host <b id="s-host">—</b></span>
       <span><b id="s-total">—</b> events</span>
       <span id="s-span">—</span>
     </div>
-    <div class="spacer"></div>
-    <button class="ghost" id="theme">Theme</button>
   </div>
 
   <div class="tl-wrap">
@@ -221,45 +292,53 @@ aside{
       <span class="tl-label">Activity timeline</span>
       <span class="tl-peak mono" id="tl-peak"></span>
     </div>
-    <div class="tl" id="tl" role="group" aria-label="Event timeline, click a bar to filter to that moment"></div>
+    <div class="tl" id="tl" role="group" aria-label="Event timeline. Tap a bar to filter to that moment."></div>
     <div class="tl-axis"><span id="tl-a">—</span><span id="tl-b">—</span></div>
+    <div class="winbar" id="winbar">
+      <span id="wintext"></span>
+      <button class="ghost" id="winclear">Clear</button>
+    </div>
   </div>
 
-  <nav role="tablist">
-    <button role="tab" aria-selected="true" data-pane="events-pane">Events</button>
-    <button role="tab" aria-selected="false" data-pane="tree-pane">Process tree</button>
-    <button role="tab" aria-selected="false" data-pane="notes-pane">Answer sheet</button>
-  </nav>
 </header>
 
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-pane="events-pane">Events</button>
+  <button role="tab" aria-selected="false" data-pane="tree-pane">Process tree</button>
+  <button role="tab" aria-selected="false" data-pane="notes-pane">Answer sheet</button>
+</nav>
+
 <div class="filters" id="filters">
-  <input class="search mono" id="q" type="search" placeholder="Search every field — paths, command lines, IPs, domains, GUIDs" autocomplete="off">
+  <input class="search mono" id="q" type="search" placeholder="Search every field — paths, commands, IPs, domains" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="chips" id="chips"></div>
-  <label class="toggle"><input type="checkbox" id="f-dns"> Hide Microsoft domains</label>
-  <label class="toggle"><input type="checkbox" id="f-port"> Non-web ports only</label>
-  <span class="count" id="count"></span>
-  <button class="ghost" id="reset">Reset</button>
+  <div class="filterrow2">
+    <label class="toggle"><input type="checkbox" id="f-dns"> Hide Microsoft domains</label>
+    <label class="toggle"><input type="checkbox" id="f-port"> Non-web ports only</label>
+    <span class="count" id="count"></span>
+    <button class="ghost" id="reset">Reset</button>
+  </div>
 </div>
 
 <main>
   <section class="pane on" id="events-pane">
-    <div class="tablewrap">
-      <table>
-        <thead><tr>
-          <th style="width:112px">Time (UTC)</th>
-          <th style="width:74px">Event</th>
-          <th style="width:170px">Process</th>
-          <th>Detail</th>
-        </tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
+    <div class="listwrap" id="listwrap">
+      <div class="lhead"><span>Time (UTC)</span><span>Event</span><span>Process</span><span>Detail</span></div>
+      <div id="rows"></div>
       <div class="more" id="more" hidden><button class="ghost" id="more-btn">Show more</button></div>
       <div class="empty" id="empty" hidden>Nothing matches these filters.</div>
     </div>
-    <aside id="detail">
-      <p class="hint"><strong>Pick an event</strong> to see every field it carries.<br><br>
-      From there you can pivot: click a <span class="mono">ProcessGuid</span> to pull up everything that process did, or click an IP, domain or path to find every event mentioning it.<br><br>
-      Press <span class="mono">F</span> on a selected row to flag it for your report.</p>
+
+    <aside id="detail" aria-label="Event detail">
+      <div class="sheetbar">
+        <span id="sheet-label">Event detail</span>
+        <button class="ghost" id="close-detail">Close</button>
+      </div>
+      <div id="detail-body">
+        <p class="hint"><strong>Pick an event</strong> to see every field it carries.<br><br>
+        From there you can pivot: tap a <span class="mono">ProcessGuid</span> to pull up everything
+        that process did, or tap an IP, domain or path to find every event mentioning it.<br><br>
+        <strong>Start with the timeline</strong> — tap the tallest burst to jump straight to the busy moments.</p>
+      </div>
     </aside>
   </section>
 
@@ -282,7 +361,8 @@ aside{
 
   var EV = JSON.parse(document.getElementById("evdata").textContent);
 
-  // ---- categories: colour is reserved for the three signal-bearing types ----
+  // Colour is reserved for the three signal-bearing event types; everything
+  // else (including the 815 file events) stays neutral so it can't dominate.
   var CATS = { 1: "proc", 3: "net", 22: "dns" };
   var CATCOLOR = { proc: "var(--proc)", net: "var(--net)", dns: "var(--dns)", other: "var(--other)" };
   var NAMES = {
@@ -305,8 +385,8 @@ aside{
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
+  function isNarrow() { return window.matchMedia("(max-width:760px)").matches; }
 
-  // ---- normalise every event once ----
   EV.forEach(function (e, i) {
     e._i = i;
     e._id = parseInt(e.EventID, 10);
@@ -321,45 +401,39 @@ aside{
       e._sum = (e.QueryName || "") + (e.QueryResults ? "   → " + e.QueryResults : "");
     } else if (e._id === 1) {
       e._sum = e.CommandLine || e.Image || "";
-    } else if (e.TargetFilename) {
-      e._sum = e.TargetFilename;
-    } else if (e.ImageLoaded) {
-      e._sum = e.ImageLoaded;
-    } else {
-      e._sum = e.TargetObject || e.Details || e.RuleName || e.State || e.Image || "";
-    }
+    } else if (e.TargetFilename) { e._sum = e.TargetFilename; }
+    else if (e.ImageLoaded) { e._sum = e.ImageLoaded; }
+    else { e._sum = e.TargetObject || e.Details || e.RuleName || e.State || e.Image || ""; }
+
     var hay = [];
     for (var k in e) { if (k.charAt(0) !== "_") hay.push(e[k]); }
     e._hay = hay.join(" \u0001 ").toLowerCase();
-    e._ms_dns = e._id === 22 && e.QueryName
+    e._msDns = e._id === 22 && e.QueryName
       ? MS_SUFFIX.some(function (s) { return String(e.QueryName).toLowerCase().endsWith(s); })
       : false;
   });
   EV.sort(function (a, b) { return a._ms - b._ms || (+a.EventRecordID) - (+b.EventRecordID); });
 
-  var T0 = EV[0]._ms, T1 = EV[EV.length - 1]._ms;
-  var NBIN = 110, BINMS = Math.max(1, Math.ceil((T1 - T0 + 1) / NBIN));
-  EV.forEach(function (e) { e._bin = Math.min(NBIN - 1, Math.floor((e._ms - T0) / BINMS)); });
+  var T0 = EV[0]._ms, T1 = EV[EV.length - 1]._ms, SPAN = Math.max(1, T1 - T0 + 1);
 
-  // ---- state ----
-  var S = { ids: {}, q: "", bin: null, guid: null, hideMs: false, oddPorts: false, limit: 250, sel: null };
+  // Time window, not a bin index: the bin count changes with screen width, so a
+  // window survives a rotation or resize where an index would not.
+  var S = { ids: {}, q: "", win: null, guid: null, hideMs: false, oddPorts: false, limit: 200, sel: null };
   var FLAG = {};
   try { FLAG = JSON.parse(localStorage.getItem("sysmon.flags") || "{}"); } catch (err) { FLAG = {}; }
-
   function saveFlags() { try { localStorage.setItem("sysmon.flags", JSON.stringify(FLAG)); } catch (err) {} }
 
   function anyIds() { for (var k in S.ids) { if (S.ids[k]) return true; } return false; }
 
   function match(e) {
     if (anyIds() && !S.ids[e._id]) return false;
-    if (S.bin !== null && e._bin !== S.bin) return false;
+    if (S.win && (e._ms < S.win[0] || e._ms >= S.win[1])) return false;
     if (S.guid && e.ProcessGuid !== S.guid && e.ParentProcessGuid !== S.guid) return false;
-    if (S.hideMs && e._ms_dns) return false;
+    if (S.hideMs && e._msDns) return false;
     if (S.oddPorts && e._id === 3 && WEBPORTS[e.DestinationPort]) return false;
     if (S.q && e._hay.indexOf(S.q) === -1) return false;
     return true;
   }
-
   function filtered() { return EV.filter(match); }
 
   function hl(text) {
@@ -369,70 +443,82 @@ aside{
     try { return s.replace(new RegExp(needle, "gi"), function (m) { return "<mark>" + m + "</mark>"; }); }
     catch (err) { return s; }
   }
-
   function timeOf(e) { return e._t.replace("T", " ").replace("Z", "").slice(11, 23); }
+  function clock(ms) { return new Date(ms).toISOString().slice(11, 19); }
 
-  // ---- render: table ----
   var rowsEl = document.getElementById("rows");
   var moreEl = document.getElementById("more");
   var emptyEl = document.getElementById("empty");
   var countEl = document.getElementById("count");
+  var tlEl = document.getElementById("tl");
+  var asideEl = document.getElementById("detail");
 
   function renderRows() {
     var list = filtered();
-    var shown = list.slice(0, S.limit);
-    var html = shown.map(function (e) {
-      return '<tr data-i="' + e._i + '"' +
-        (S.sel === e._i ? ' class="sel' + (FLAG[e._i] ? " flagged" : "") + '"' : (FLAG[e._i] ? ' class="flagged"' : "")) +
-        '><td class="t">' + timeOf(e) + "</td>" +
-        '<td class="e"><span class="eid"><span class="dot" style="background:' + CATCOLOR[e._cat] + '"></span>' +
-          e._id + " " + (NAMES[e._id] || "") + "</span></td>" +
-        '<td class="p" title="' + esc(e.Image || "") + '">' + hl(e._img) + "</td>" +
-        '<td class="s">' + hl(e._sum.length > 400 ? e._sum.slice(0, 400) + " …" : e._sum) + "</td></tr>";
+    rowsEl.innerHTML = list.slice(0, S.limit).map(function (e) {
+      var cls = "row" + (S.sel === e._i ? " sel" : "") + (FLAG[e._i] ? " flagged" : "");
+      return '<div class="' + cls + '" role="button" tabindex="0" data-i="' + e._i + '">' +
+        '<span class="c-t">' + timeOf(e) + "</span>" +
+        '<span class="c-e"><span class="dot" style="background:' + CATCOLOR[e._cat] + '"></span>' +
+          e._id + " " + (NAMES[e._id] || "") + "</span>" +
+        '<span class="c-p" title="' + esc(e.Image || "") + '">' + hl(e._img) + "</span>" +
+        '<span class="c-s">' + hl(e._sum.length > 400 ? e._sum.slice(0, 400) + " …" : e._sum) + "</span></div>";
     }).join("");
-    rowsEl.innerHTML = html;
     emptyEl.hidden = list.length !== 0;
     moreEl.hidden = list.length <= S.limit;
     countEl.innerHTML = "<b>" + list.length + "</b> of " + EV.length;
-    return list;
   }
 
-  // ---- render: timeline ----
-  var tlEl = document.getElementById("tl");
   function renderTL() {
+    // One bar per ~7px of available width, so bars stay tappable on a phone.
+    var w = tlEl.clientWidth || 600;
+    var nbin = Math.max(24, Math.min(140, Math.floor(w / 7)));
+    var binms = Math.max(1, Math.ceil(SPAN / nbin));
+
     var bins = [];
-    for (var i = 0; i < NBIN; i++) bins.push({ proc: 0, net: 0, dns: 0, other: 0, n: 0 });
-    EV.forEach(function (e) { bins[e._bin][e._cat]++; bins[e._bin].n++; });
-    var peak = bins.reduce(function (m, b) { return Math.max(m, b.n); }, 0);
+    for (var i = 0; i < nbin; i++) bins.push({ proc: 0, net: 0, dns: 0, other: 0, n: 0 });
+    EV.forEach(function (e) {
+      var b = Math.min(nbin - 1, Math.floor((e._ms - T0) / binms));
+      bins[b][e._cat]++; bins[b].n++;
+    });
+    var peak = bins.reduce(function (m, b) { return Math.max(m, b.n); }, 0) || 1;
     document.getElementById("tl-peak").textContent =
-      "peak " + peak + " events / " + (BINMS / 1000).toFixed(1) + "s";
+      "peak " + peak + " events / " + (binms / 1000).toFixed(1) + "s";
+
     tlEl.innerHTML = bins.map(function (b, i) {
+      var s = T0 + i * binms, en = s + binms;
+      var on = S.win && S.win[0] < en && S.win[1] > s;
       var inner = ["proc", "net", "dns", "other"].map(function (c) {
-        if (!b[c]) return "";
-        return '<span style="height:' + (b[c] / peak * 100) + "%;background:" + CATCOLOR[c] + '"></span>';
+        return b[c] ? '<span style="height:' + (b[c] / peak * 100) + "%;background:" + CATCOLOR[c] + '"></span>' : "";
       }).join("");
-      return '<button class="tl-bin' + (S.bin === i ? " sel" : "") + '" data-bin="' + i +
-        '" title="' + new Date(T0 + i * BINMS).toISOString().slice(11, 19) + " UTC — " + b.n +
-        ' events" aria-label="' + b.n + ' events">' + inner + "</button>";
+      return '<button class="tl-bin' + (on ? " sel" : "") + '" data-s="' + s + '" data-e="' + en +
+        '" title="' + clock(s) + " UTC — " + b.n + ' events" aria-label="' + clock(s) + ", " + b.n + ' events">' +
+        inner + "</button>";
     }).join("");
-    document.getElementById("tl-a").textContent = new Date(T0).toISOString().slice(11, 19);
-    document.getElementById("tl-b").textContent = new Date(T1).toISOString().slice(11, 19);
+
+    document.getElementById("tl-a").textContent = clock(T0);
+    document.getElementById("tl-b").textContent = clock(T1);
+
+    var wb = document.getElementById("winbar");
+    wb.classList.toggle("on", !!S.win);
+    if (S.win) {
+      document.getElementById("wintext").textContent =
+        "window " + clock(S.win[0]) + "–" + clock(S.win[1]);
+    }
   }
 
-  // ---- render: chips ----
   function renderChips() {
     var counts = {};
     EV.forEach(function (e) { counts[e._id] = (counts[e._id] || 0) + 1; });
-    var ids = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
-    document.getElementById("chips").innerHTML = ids.map(function (id) {
-      var cat = CATS[id] || "other";
-      return '<button class="chip" data-id="' + id + '" aria-pressed="' + (S.ids[id] ? "true" : "false") + '">' +
-        '<span class="dot" style="background:' + CATCOLOR[cat] + '"></span>' +
-        (NAMES[id] || "ID " + id) + ' <span class="n">' + counts[id] + "</span></button>";
-    }).join("");
+    document.getElementById("chips").innerHTML = Object.keys(counts)
+      .sort(function (a, b) { return counts[b] - counts[a]; })
+      .map(function (id) {
+        return '<button class="chip" data-id="' + id + '" aria-pressed="' + (S.ids[id] ? "true" : "false") + '">' +
+          '<span class="dot" style="background:' + CATCOLOR[CATS[id] || "other"] + '"></span>' +
+          (NAMES[id] || "ID " + id) + ' <span class="n">' + counts[id] + "</span></button>";
+      }).join("");
   }
 
-  // ---- render: detail ----
   var ORDER = ["UtcTime", "EventRecordID", "Image", "CommandLine", "ProcessGuid", "ProcessId",
     "User", "IntegrityLevel", "CurrentDirectory", "ParentImage", "ParentCommandLine",
     "ParentProcessGuid", "ParentProcessId", "TargetFilename", "CreationUtcTime", "ImageLoaded",
@@ -444,7 +530,6 @@ aside{
     ProcessId: 1, ParentProcessId: 1, User: 1 };
 
   function renderDetail() {
-    var el = document.getElementById("detail");
     if (S.sel === null) return;
     var e = EV[S.sel];
     var keys = ORDER.filter(function (k) { return e[k]; })
@@ -452,77 +537,87 @@ aside{
         return k.charAt(0) !== "_" && ORDER.indexOf(k) === -1 &&
           ["EventID", "Computer", "TimeCreated.SystemTime"].indexOf(k) === -1;
       }));
-    var guid = e.ProcessGuid;
-    el.innerHTML =
+    document.getElementById("sheet-label").textContent =
+      "Event " + e._id + " · record " + e.EventRecordID;
+    document.getElementById("detail-body").innerHTML =
       '<div class="dhead"><span class="dot" style="background:' + CATCOLOR[e._cat] + '"></span>' +
         '<span class="dtitle">Event ' + e._id + " — " + (NAMES[e._id] || "") + "</span></div>" +
       '<div class="dtime mono">' + esc(e._t) + "  ·  record " + esc(e.EventRecordID) + "</div>" +
       '<div class="acts">' +
-        (guid ? '<button class="act' + (S.guid === guid ? " on" : "") + '" id="story">' +
-          (S.guid === guid ? "✓ Showing this process" : "This process’s whole story") + "</button>" : "") +
+        (e.ProcessGuid ? '<button class="act' + (S.guid === e.ProcessGuid ? " on" : "") + '" id="story">' +
+          (S.guid === e.ProcessGuid ? "✓ Showing this process" : "This process’s whole story") + "</button>" : "") +
         '<button class="act" id="flag">' + (FLAG[e._i] ? "★ Flagged" : "☆ Flag for report") + "</button>" +
       "</div>" +
       keys.map(function (k) {
         var v = String(e[k]);
-        var val = PIVOTABLE[k]
-          ? '<button class="pivot" data-pv="' + esc(v) + '">' + esc(v) + "</button>"
-          : '<span class="fv">' + esc(v) + "</span>";
-        return '<div class="field"><span class="fk">' + esc(k.replace(/([a-z])([A-Z])/g, "$1 $2")) +
-          "</span>" + val + "</div>";
+        return '<div class="field"><span class="fk">' + esc(k.replace(/([a-z])([A-Z])/g, "$1 $2")) + "</span>" +
+          (PIVOTABLE[k] ? '<button class="pivot" data-pv="' + esc(v) + '">' + esc(v) + "</button>"
+                        : '<span class="fv">' + esc(v) + "</span>") + "</div>";
       }).join("");
   }
 
-  // ---- render: process tree ----
-  // Rendered flat with a computed indent rather than nested boxes: the deepest
-  // chain in this log runs well past 100 levels, which nested padding would
-  // push off the side of the screen.
+  var lockY = 0;
+  function openSheet() {
+    if (!isNarrow()) return;
+    lockY = window.scrollY || 0;
+    asideEl.classList.add("open");
+    // position:fixed would otherwise jump the page to the top behind the sheet
+    document.body.style.top = (-lockY) + "px";
+    document.body.classList.add("locked");
+    document.getElementById("detail-body").scrollTop = 0;
+  }
+  function closeSheet() {
+    var wasOpen = asideEl.classList.contains("open");
+    asideEl.classList.remove("open");
+    document.body.classList.remove("locked");
+    document.body.style.top = "";
+    if (wasOpen) window.scrollTo(0, lockY);
+  }
+
   function renderTree() {
     var procs = EV.filter(function (e) { return e._id === 1 && e.ProcessGuid; });
     var byGuid = {}, kids = {};
     procs.forEach(function (e) { byGuid[e.ProcessGuid] = e; });
-    procs.forEach(function (e) {
-      var p = e.ParentProcessGuid || "";
-      (kids[p] = kids[p] || []).push(e);
-    });
+    procs.forEach(function (e) { var p = e.ParentProcessGuid || ""; (kids[p] = kids[p] || []).push(e); });
     var roots = procs.filter(function (e) { return !byGuid[e.ParentProcessGuid]; });
 
+    // Flat with a capped indent: the deepest chain here runs past 200 levels,
+    // which nested boxes would push off the side of any screen.
+    var step = isNarrow() ? 7 : 13, maxLv = isNarrow() ? 8 : 14;
     var seen = {}, out = [], deepest = 0;
-    function walk(e, depth) {
-      if (seen[e.ProcessGuid]) return;       // guards against a malformed cycle
+    function walk(e, d) {
+      if (seen[e.ProcessGuid]) return;
       seen[e.ProcessGuid] = 1;
-      if (depth > deepest) deepest = depth;
-      out.push({ e: e, d: depth });
-      (kids[e.ProcessGuid] || []).forEach(function (c) { walk(c, depth + 1); });
+      if (d > deepest) deepest = d;
+      out.push({ e: e, d: d });
+      (kids[e.ProcessGuid] || []).forEach(function (c) { walk(c, d + 1); });
     }
-
     var html = roots.map(function (r) {
       out = [];
       walk(r, 0);
       return '<div class="troot">' +
         (r.ParentImage ? '<div class="tmissing">parent not in log: ' + esc(r.ParentImage) + "</div>" : "") +
         out.map(function (n) {
-          var pad = Math.min(n.d, 14) * 13;
-          return '<div class="trow" data-i="' + n.e._i + '" style="padding-left:' + pad + 'px">' +
+          return '<div class="trow" role="button" tabindex="0" data-i="' + n.e._i +
+            '" style="padding-left:' + (Math.min(n.d, maxLv) * step) + 'px">' +
             '<span class="tw">' + timeOf(n.e) + "</span>" +
-            (n.d > 14 ? '<span class="tw" title="depth in the chain">\u00b7' + n.d + "</span>" : "") +
+            (n.d > maxLv ? '<span class="tw" title="depth in the chain">·' + n.d + "</span>" : "") +
             '<span class="tname" style="color:' + CATCOLOR.proc + '">' + esc(n.e._img) + "</span>" +
             '<span class="tcmd">' + esc((n.e.CommandLine || "").slice(0, 260)) + "</span></div>";
         }).join("") + "</div>";
     }).join("");
 
     document.getElementById("tree-pane").innerHTML =
-      '<p class="hint" style="margin-top:0">' + procs.length + " process creations in " +
-      roots.length + " chains, deepest " + deepest + " levels. " +
-      "A process whose parent has no Event&nbsp;1 of its own starts a new chain \u2014 the parent it names is printed above it. " +
-      "Click any row to open that event.</p>" + html;
+      '<p class="hint" style="margin-top:0">' + procs.length + " process creations in " + roots.length +
+      " chains, deepest " + deepest + " levels. A process whose parent has no Event&nbsp;1 of its own " +
+      "starts a new chain — the parent it names is printed above it. Tap any row to open that event.</p>" + html;
   }
 
-  // ---- answer sheet ----
   var QS = [
     ["Q1", "Which file granted the attacker access?", "Event 1 with an Office/mail/browser ParentImage, plus the Event 11 that wrote it"],
     ["Q2", "Which PowerShell cmdlet retrieved the malware, and on what port?", "Event 1 CommandLine, then Event 3 from the same ProcessGuid"],
     ["Q3", "Identifier of the environment variable the attacker set?", "Event 1 using setx / $env: / SetEnvironmentVariable"],
-    ["Q4", "Which process is the LOLBIN?", "Event 1 where Image is a signed Microsoft binary doing something it shouldn't"],
+    ["Q4", "Which process is the LOLBIN?", "Event 1 where Image is a signed Microsoft binary doing something it shouldn’t"],
     ["Q5", "Several identical commands ran at once — which was first?", "Group Event 1 by CommandLine, then order by UtcTime"],
     ["Q6", "What language is the malware written in?", "The dependency events — which runtime modules the process pulls in"],
     ["Q7", "Complete URL of the next file downloaded?", "Event 1 CommandLine + Event 22 QueryName + Event 3 port"],
@@ -534,11 +629,10 @@ aside{
       try { saved = localStorage.getItem("sysmon." + q[0]) || ""; } catch (err) {}
       return '<div class="q"><div class="qh"><span class="qn">' + q[0] + '</span><span class="qt">' +
         q[1] + '</span></div><p class="qm">' + q[2] + "</p>" +
-        '<textarea id="ta-' + q[0] + '" data-q="' + q[0] + '" placeholder="Your answer, and the event record ID that proves it">' +
-        esc(saved) + "</textarea></div>";
+        '<textarea id="ta-' + q[0] + '" data-q="' + q[0] +
+        '" placeholder="Your answer, and the event record ID that proves it">' + esc(saved) + "</textarea></div>";
     }).join("");
   }
-
   function notesText() {
     var out = ["# Sysmon investigation — answers", ""];
     QS.forEach(function (q) {
@@ -558,85 +652,79 @@ aside{
     return out.join("\n");
   }
 
-  // ---- wiring ----
-  function refresh(resetLimit) {
-    if (resetLimit !== false) S.limit = 250;
-    renderRows();
-    renderTL();
-    renderChips();
-  }
+  function refresh() { S.limit = 200; renderRows(); renderTL(); renderChips(); }
 
   document.getElementById("q").addEventListener("input", function (ev) {
-    S.q = ev.target.value.trim().toLowerCase();
-    refresh();
+    S.q = ev.target.value.trim().toLowerCase(); refresh();
   });
   document.getElementById("chips").addEventListener("click", function (ev) {
     var b = ev.target.closest(".chip"); if (!b) return;
     var id = b.getAttribute("data-id");
-    S.ids[id] = !S.ids[id];
-    refresh();
+    S.ids[id] = !S.ids[id]; refresh();
   });
   tlEl.addEventListener("click", function (ev) {
     var b = ev.target.closest(".tl-bin"); if (!b) return;
-    var i = +b.getAttribute("data-bin");
-    S.bin = (S.bin === i) ? null : i;
+    var s = +b.getAttribute("data-s"), e = +b.getAttribute("data-e");
+    S.win = (S.win && S.win[0] === s && S.win[1] === e) ? null : [s, e];
     refresh();
   });
-  document.getElementById("f-dns").addEventListener("change", function (ev) {
-    S.hideMs = ev.target.checked; refresh();
-  });
-  document.getElementById("f-port").addEventListener("change", function (ev) {
-    S.oddPorts = ev.target.checked; refresh();
-  });
+  document.getElementById("winclear").addEventListener("click", function () { S.win = null; refresh(); });
+  document.getElementById("f-dns").addEventListener("change", function (ev) { S.hideMs = ev.target.checked; refresh(); });
+  document.getElementById("f-port").addEventListener("change", function (ev) { S.oddPorts = ev.target.checked; refresh(); });
   document.getElementById("reset").addEventListener("click", function () {
-    S = { ids: {}, q: "", bin: null, guid: null, hideMs: false, oddPorts: false, limit: 250, sel: S.sel };
+    S.ids = {}; S.q = ""; S.win = null; S.guid = null; S.hideMs = false; S.oddPorts = false;
     document.getElementById("q").value = "";
     document.getElementById("f-dns").checked = false;
     document.getElementById("f-port").checked = false;
     refresh();
     if (S.sel !== null) renderDetail();
   });
-  document.getElementById("more-btn").addEventListener("click", function () {
-    S.limit += 500; renderRows();
-  });
+  document.getElementById("more-btn").addEventListener("click", function () { S.limit += 400; renderRows(); });
 
+  function pickRow(el) {
+    S.sel = +el.getAttribute("data-i");
+    renderRows(); renderDetail(); openSheet();
+  }
   rowsEl.addEventListener("click", function (ev) {
-    var tr = ev.target.closest("tr"); if (!tr) return;
-    S.sel = +tr.getAttribute("data-i");
-    renderRows();
-    renderDetail();
+    var r = ev.target.closest(".row"); if (r) pickRow(r);
+  });
+  rowsEl.addEventListener("keydown", function (ev) {
+    var r = ev.target.closest(".row");
+    if (r && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); pickRow(r); }
   });
 
-  document.getElementById("detail").addEventListener("click", function (ev) {
+  document.getElementById("close-detail").addEventListener("click", closeSheet);
+
+  asideEl.addEventListener("click", function (ev) {
     var pv = ev.target.closest(".pivot");
     if (pv) {
-      S.q = pv.getAttribute("data-pv").toLowerCase();
-      document.getElementById("q").value = pv.getAttribute("data-pv");
-      S.guid = null; S.bin = null;
-      refresh();
+      var v = pv.getAttribute("data-pv");
+      S.q = v.toLowerCase();
+      document.getElementById("q").value = v;
+      S.guid = null; S.win = null;
+      refresh(); closeSheet();
       return;
     }
     if (ev.target.id === "story") {
       var e = EV[S.sel];
       S.guid = (S.guid === e.ProcessGuid) ? null : e.ProcessGuid;
-      S.q = ""; document.getElementById("q").value = ""; S.bin = null;
-      refresh(); renderDetail();
+      S.q = ""; document.getElementById("q").value = ""; S.win = null;
+      refresh(); renderDetail(); closeSheet();
       return;
     }
-    if (ev.target.id === "flag") {
-      FLAG[S.sel] = !FLAG[S.sel]; saveFlags(); renderRows(); renderDetail();
-    }
+    if (ev.target.id === "flag") { FLAG[S.sel] = !FLAG[S.sel]; saveFlags(); renderRows(); renderDetail(); }
   });
 
   document.getElementById("tree-pane").addEventListener("click", function (ev) {
     var r = ev.target.closest(".trow"); if (!r) return;
     S.sel = +r.getAttribute("data-i");
     showPane("events-pane");
-    renderRows(); renderDetail();
+    renderRows(); renderDetail(); openSheet();
   });
 
   document.addEventListener("keydown", function (ev) {
     if (/^(INPUT|TEXTAREA)$/.test(ev.target.tagName)) return;
+    if (ev.key === "Escape") closeSheet();
     if ((ev.key === "f" || ev.key === "F") && S.sel !== null) {
       FLAG[S.sel] = !FLAG[S.sel]; saveFlags(); renderRows(); renderDetail();
     }
@@ -651,6 +739,7 @@ aside{
       b.setAttribute("aria-selected", b.getAttribute("data-pane") === id ? "true" : "false");
     });
     document.getElementById("filters").hidden = (id !== "events-pane");
+    if (id !== "events-pane") closeSheet();
   }
   document.querySelector("nav").addEventListener("click", function (ev) {
     var b = ev.target.closest("button[data-pane]"); if (!b) return;
@@ -676,9 +765,9 @@ aside{
   function fallbackCopy(text, s) {
     var ta = document.createElement("textarea");
     ta.value = text;
-    ta.style.cssText = "position:fixed;top:12px;left:12px;width:calc(100% - 24px);height:60vh;z-index:99;font-family:var(--mono);font-size:12px";
+    ta.style.cssText = "position:fixed;top:12px;left:12px;right:12px;height:60vh;z-index:99;font-size:16px";
     document.body.appendChild(ta); ta.select();
-    s.textContent = "Select the text above and copy it, then click here to dismiss";
+    s.textContent = "Select the text above and copy it, then tap here to dismiss";
     s.onclick = function () { ta.remove(); s.textContent = ""; s.onclick = null; };
   }
 
@@ -689,17 +778,23 @@ aside{
     r.setAttribute("data-theme", dark ? "light" : "dark");
   });
 
-  // ---- boot ----
+  var rt;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { setScope(); renderTL(); renderTree(); }, 160);
+  });
+
   document.getElementById("s-host").textContent = EV[0].Computer || "—";
   document.getElementById("s-total").textContent = EV.length;
-  document.getElementById("s-span").textContent =
-    EV[0]._t.slice(0, 10) + "  " + new Date(T0).toISOString().slice(11, 19) + "–" +
-    new Date(T1).toISOString().slice(11, 19) + " UTC";
-  renderChips();
-  renderTL();
-  renderRows();
-  renderTree();
-  buildNotes();
+  function setScope() {
+    // On a phone the timeline axis already prints the start and end times,
+    // so the header carries just the date.
+    document.getElementById("s-span").textContent = isNarrow()
+      ? EV[0]._t.slice(0, 10)
+      : EV[0]._t.slice(0, 10) + "  " + clock(T0) + "\u2013" + clock(T1) + " UTC";
+  }
+  setScope();
+  renderChips(); renderTL(); renderRows(); renderTree(); buildNotes();
 })();
 
 </script>
