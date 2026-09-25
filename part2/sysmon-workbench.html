@@ -133,6 +133,14 @@ main{flex:1 1 auto; min-height:0; display:flex; overflow:hidden; position:relati
 .c-s{font-family:var(--mono); font-size:11.5px; color:var(--ink-2); word-break:break-all;
   overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical}
 mark{background:var(--flag-bg); color:var(--ink); padding:0 1px; border-radius:2px}
+.rep{background:var(--ink); color:var(--surface); border-radius:9px; padding:0 6px;
+  font-size:10.5px; font-weight:700; margin-left:2px}
+.rep2{color:var(--ink-3); font-size:10.5px}
+.decoded{border:1px solid var(--line-strong); border-radius:7px; background:var(--surface-2);
+  padding:10px 12px; margin-bottom:14px}
+.decoded pre{margin:5px 0 0; white-space:pre-wrap; word-break:break-all;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink); max-height:340px; overflow:auto}
+.toggle b{font-weight:600; color:var(--ink)}
 .more{padding:14px; text-align:center}
 .empty{padding:40px 16px; text-align:center; color:var(--ink-3)}
 
@@ -312,6 +320,7 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
   <input class="search mono" id="q" type="search" placeholder="Search every field — paths, commands, IPs, domains" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="chips" id="chips"></div>
   <div class="filterrow2">
+    <label class="toggle"><input type="checkbox" id="f-dedupe"> <b>Collapse identical</b></label>
     <label class="toggle"><input type="checkbox" id="f-dns"> Hide Microsoft domains</label>
     <label class="toggle"><input type="checkbox" id="f-port"> Non-web ports only</label>
     <span class="count" id="count"></span>
@@ -418,7 +427,8 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
 
   // Time window, not a bin index: the bin count changes with screen width, so a
   // window survives a rotation or resize where an index would not.
-  var S = { ids: {}, q: "", win: null, guid: null, hideMs: false, oddPorts: false, limit: 200, sel: null };
+  var S = { ids: {}, q: "", win: null, guid: null, hideMs: false, oddPorts: false,
+          dedupe: false, limit: 200, sel: null };
   var FLAG = {};
   try { FLAG = JSON.parse(localStorage.getItem("sysmon.flags") || "{}"); } catch (err) { FLAG = {}; }
   function saveFlags() { try { localStorage.setItem("sysmon.flags", JSON.stringify(FLAG)); } catch (err) {} }
@@ -434,7 +444,26 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
     if (S.q && e._hay.indexOf(S.q) === -1) return false;
     return true;
   }
-  function filtered() { return EV.filter(match); }
+  function filtered() {
+    var list = EV.filter(match);
+    if (!S.dedupe) return list;
+    // 428 process creations carry only 20 distinct command lines. Collapsing
+    // identical events is what turns this log into something readable.
+    var seen = {}, out = [];
+    list.forEach(function (e) {
+      var key = e._id + "\u0001" + e._sum;
+      if (seen[key] === undefined) {
+        seen[key] = out.length;
+        e._n = 1; e._first = e._ms; e._last = e._ms;
+        out.push(e);
+      } else {
+        var first = out[seen[key]];
+        first._n++;
+        if (e._ms > first._last) first._last = e._ms;
+      }
+    });
+    return out;
+  }
 
   function hl(text) {
     var s = esc(text);
@@ -458,9 +487,11 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
     rowsEl.innerHTML = list.slice(0, S.limit).map(function (e) {
       var cls = "row" + (S.sel === e._i ? " sel" : "") + (FLAG[e._i] ? " flagged" : "");
       return '<div class="' + cls + '" role="button" tabindex="0" data-i="' + e._i + '">' +
-        '<span class="c-t">' + timeOf(e) + "</span>" +
+        '<span class="c-t">' + timeOf(e) +
+          (S.dedupe && e._n > 1 ? '<br><span class="rep2">last ' + clock(e._last) + '</span>' : '') + "</span>" +
         '<span class="c-e"><span class="dot" style="background:' + CATCOLOR[e._cat] + '"></span>' +
-          e._id + " " + (NAMES[e._id] || "") + "</span>" +
+          e._id + " " + (NAMES[e._id] || "") +
+          (S.dedupe && e._n > 1 ? ' <span class="rep">\u00d7' + e._n + '</span>' : '') + "</span>" +
         '<span class="c-p" title="' + esc(e.Image || "") + '">' + hl(e._img) + "</span>" +
         '<span class="c-s">' + hl(e._sum.length > 400 ? e._sum.slice(0, 400) + " …" : e._sum) + "</span></div>";
     }).join("");
@@ -529,6 +560,22 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
     QueryName: 1, DestinationIp: 1, DestinationHostname: 1, DestinationPort: 1, ImageLoaded: 1,
     ProcessId: 1, ParentProcessId: 1, User: 1 };
 
+  // PowerShell -enc payloads are base64 UTF-16LE. Decoding is often the only
+  // way to see what a command actually did.
+  function findB64(text) {
+    var m = /(?:-e|-en|-enc|-encoded|-encodedcommand)\s+([A-Za-z0-9+/=]{40,})/i.exec(text || "");
+    return m ? m[1] : null;
+  }
+  function decodeB64(b64) {
+    try {
+      var bin = atob(b64), out = "", i;
+      var utf16 = bin.length > 1 && bin.charCodeAt(1) === 0;   // UTF-16LE marker
+      if (utf16) { for (i = 0; i < bin.length; i += 2) out += bin.charAt(i); }
+      else { out = bin; }
+      return out;
+    } catch (err) { return null; }
+  }
+
   function renderDetail() {
     if (S.sel === null) return;
     var e = EV[S.sel];
@@ -547,7 +594,9 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
         (e.ProcessGuid ? '<button class="act' + (S.guid === e.ProcessGuid ? " on" : "") + '" id="story">' +
           (S.guid === e.ProcessGuid ? "✓ Showing this process" : "This process’s whole story") + "</button>" : "") +
         '<button class="act" id="flag">' + (FLAG[e._i] ? "★ Flagged" : "☆ Flag for report") + "</button>" +
+        (findB64(e.CommandLine) ? '<button class="act" id="decode">Decode the -enc payload</button>' : "") +
       "</div>" +
+      '<div id="decoded"></div>' +
       keys.map(function (k) {
         var v = String(e[k]);
         return '<div class="field"><span class="fk">' + esc(k.replace(/([a-z])([A-Z])/g, "$1 $2")) + "</span>" +
@@ -616,12 +665,12 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
   var QS = [
     ["Q1", "Which file granted the attacker access?", "Event 1 with an Office/mail/browser ParentImage, plus the Event 11 that wrote it"],
     ["Q2", "Which PowerShell cmdlet retrieved the malware, and on what port?", "Event 1 CommandLine, then Event 3 from the same ProcessGuid"],
-    ["Q3", "Identifier of the environment variable the attacker set?", "Event 1 using setx / $env: / SetEnvironmentVariable"],
+    ["Q3", "Identifier of the environment variable the attacker set?", "No setx or $env: anywhere in this log, and no registry events \u2014 so it is inside an encoded command. Decode it."],
     ["Q4", "Which process is the LOLBIN?", "Event 1 where Image is a signed Microsoft binary doing something it shouldn’t"],
-    ["Q5", "Several identical commands ran at once — which was first?", "Group Event 1 by CommandLine, then order by UtcTime"],
+    ["Q5", "Several identical commands ran at once — which was first?", "Turn on Collapse identical, find the groups with a \u00d7count, then take the earliest of them"],
     ["Q6", "What language is the malware written in?", "The dependency events — which runtime modules the process pulls in"],
     ["Q7", "Complete URL of the next file downloaded?", "Event 1 CommandLine + Event 22 QueryName + Event 3 port"],
-    ["Q8", "Which port is used for the reverse shell?", "Event 3, but separate the shell port from the download port"]
+    ["Q8", "Which port is used for the reverse shell?", "Only 3 ports appear across 200 connections, and two of them appear exactly once. Rarity is the signal."]
   ];
   function buildNotes() {
     document.getElementById("qs").innerHTML = QS.map(function (q) {
@@ -669,11 +718,13 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
     refresh();
   });
   document.getElementById("winclear").addEventListener("click", function () { S.win = null; refresh(); });
+  document.getElementById("f-dedupe").addEventListener("change", function (ev) { S.dedupe = ev.target.checked; refresh(); });
   document.getElementById("f-dns").addEventListener("change", function (ev) { S.hideMs = ev.target.checked; refresh(); });
   document.getElementById("f-port").addEventListener("change", function (ev) { S.oddPorts = ev.target.checked; refresh(); });
   document.getElementById("reset").addEventListener("click", function () {
     S.ids = {}; S.q = ""; S.win = null; S.guid = null; S.hideMs = false; S.oddPorts = false;
     document.getElementById("q").value = "";
+    document.getElementById("f-dedupe").checked = false; S.dedupe = false;
     document.getElementById("f-dns").checked = false;
     document.getElementById("f-port").checked = false;
     refresh();
@@ -712,7 +763,14 @@ aside{flex:0 0 400px; border-left:1px solid var(--line); background:var(--surfac
       refresh(); renderDetail(); closeSheet();
       return;
     }
-    if (ev.target.id === "flag") { FLAG[S.sel] = !FLAG[S.sel]; saveFlags(); renderRows(); renderDetail(); }
+    if (ev.target.id === "flag") { FLAG[S.sel] = !FLAG[S.sel]; saveFlags(); renderRows(); renderDetail(); return; }
+    if (ev.target.id === "decode") {
+      var b64 = findB64(EV[S.sel].CommandLine);
+      var txt = decodeB64(b64);
+      document.getElementById("decoded").innerHTML = txt
+        ? '<div class="decoded"><div class="fk">Decoded payload</div><pre>' + esc(txt) + "</pre></div>"
+        : '<div class="decoded"><div class="fk">Decoded payload</div><pre>Could not decode this string.</pre></div>';
+    }
   });
 
   document.getElementById("tree-pane").addEventListener("click", function (ev) {

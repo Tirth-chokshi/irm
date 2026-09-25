@@ -267,4 +267,87 @@ My anchor sentence:
 
 ---
 
-## Step 4 — (to be added once Step 3 is recorded)
+## Step 4 — Deciding which of several similar events is the answer  ☐ not yet done
+
+### Why everything looks the same
+
+Counted across the whole log:
+
+| | |
+|---|---|
+| Process creations (Event 1) | 428 |
+| **Distinct command lines among them** | **20** |
+| Command lines that repeat | 10 |
+| Largest repeat group | 98 identical executions |
+
+The log is not 428 different things. It is **20 things, most of them repeated**.
+That is the entire reason the events look interchangeable, and the fix is one
+click: turn on **Collapse identical** in the workbench and filter to Process.
+428 rows become 20. Read all 20 — that is the whole attack, start to finish.
+
+Do this before attempting any question.
+
+### Two corrections to the Step 3 method for this specific log
+
+The Event ID map in `README.md` describes Sysmon in general. This log does not
+carry every event type, and two questions have to be approached differently:
+
+| Question | General method | Why it fails here | What to do instead |
+|---|---|---|---|
+| **Q6** language | Event 7 ImageLoad shows the runtime DLLs | **This log has zero Event 7 records** | The runtime still touches disk. A packed interpreter unpacks its library beside itself — read the Event 11 FileCreate records written by the malware process and see what runtime those files belong to |
+| **Q3** env var | `setx`, `$env:`, or Event 13 under `\Environment\` | **Zero command lines contain any of those, and there are no registry events at all** | The variable is set inside the encoded PowerShell payload. Select that event and press **Decode the -enc payload** in the workbench |
+
+### The three tie-breakers
+
+When several events genuinely look alike, they differ in exactly one of three
+ways. Work out which one the question is asking about:
+
+1. **Time** — the question says *initial*, *first*, *following that*, *new*.
+   Sort the candidates by `UtcTime` and take the end the wording points at.
+2. **Lineage** — the question says *the attacker*, *the malware*.
+   Check `ParentProcessGuid`. Only events inside the one malicious chain
+   count; identical-looking activity from a normal Windows parent does not.
+3. **Rarity** — the question asks *which* of a kind. In a log where one
+   thing happens 198 times and two things happen once each, the answer to a
+   singular question is almost never the thing that happened 198 times.
+
+### What the candidate set actually looks like, per question
+
+This is the shape of the search space, so you know when you have converged.
+
+| Q | How many candidates survive the obvious filter | Which tie-breaker decides it |
+|---|---|---|
+| Q1 | a handful of dropped files | **Lineage** — it must be both written to disk *and* named on the command line of the process that starts the malicious chain |
+| Q2 | 97 events, but only a couple of *distinct* commands once collapsed | none needed after collapsing; then match `ProcessGuid` to its Event 3 for the port |
+| Q3 | **0** by the usual search | decode the payload (see above) |
+| Q4 | **exactly 1** LOLBIN-family binary in the entire log, run once | none needed — filter to Process and look for the signed Microsoft tool that has no business running |
+| Q5 | 10 repeated groups | **Time** — earliest execution inside the group that belongs to the malware |
+| Q6 | 815 file events | **Lineage** — only the files written by the malware process matter |
+| Q7 | 2 literal URLs, 12 DNS names | **Time** — the question says *following that*, so it is not the first one |
+| Q8 | 3 distinct ports across 200 connections; **two appear exactly once** | **Rarity** — a reverse shell is one connection, a download is many |
+
+### How to know you are right
+
+An answer is finished when you can say all three of these about it:
+
+1. The **record ID** of the event that proves it.
+2. **Which process** did it, by `ProcessGuid`, and where that process sits in
+   the chain — who started it and what it started.
+3. **Why the near-misses are not it** — name the other candidates and the
+   tie-breaker that rules each one out.
+
+If you cannot do (3), you have a guess, not an answer. Point 3 is also what
+turns a one-line answer into report marks.
+
+### Findings
+
+```
+Collapsed to 20 commands, read them all (y/n):
+Decoded the -enc payload (y/n):
+Questions I am confident on:
+Questions still ambiguous:
+```
+
+---
+
+## Step 5 — (to be added once Step 4 is recorded)
